@@ -1,4 +1,4 @@
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Flag {
     pub name: String,
     pub abbr: Option<char>,
@@ -24,7 +24,7 @@ impl Flag {
 }
 
 /// The type of the flag
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub enum FlagType {
     /// is of bool value, as in takes no value
     #[default]
