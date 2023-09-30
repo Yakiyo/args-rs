@@ -82,6 +82,9 @@ impl ArgParser {
 
     /// Find a flag based on abbreviation
     pub(crate) fn _find_by_abbr(&self, abbr: char) -> Option<Flag> {
-        self.flags.values().find(|f| f.abbr == Some(abbr)).map(|f| f.clone())
+        self.flags
+            .values()
+            .find(|f| f.abbr == Some(abbr))
+            .map(|f| f.clone())
     }
 }
