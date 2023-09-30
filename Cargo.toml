@@ -3,7 +3,7 @@ name = "yargs"
 description = "Dummy command line argument parser"
 authors = ["Yakiyo <yakiyo1206@gmail.com>"]
 repository = "https://github.com/Yakiyo/yargs"
-home = 
+home = "https://github.com/Yakiyo/yargs"
 version = "0.1.0"
 edition = "2021"
 
