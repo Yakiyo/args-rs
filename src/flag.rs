@@ -7,6 +7,7 @@ pub struct Flag {
     pub negatable: bool,
     pub flag_type: FlagType,
     pub required: bool,
+    pub default: Option<String>,
 }
 
 impl Flag {
