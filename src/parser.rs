@@ -1,7 +1,11 @@
 #![allow(unused)]
+use crate::flag::FlagValue;
 use crate::ArgParser;
-use anyhow::Result;
-use std::{collections::VecDeque, ops::Deref};
+use anyhow::{bail, Result};
+use std::{
+    collections::{HashMap, VecDeque},
+    ops::Deref,
+};
 
 #[derive(Debug, Clone)]
 pub(crate) struct Parser {
@@ -10,6 +14,7 @@ pub(crate) struct Parser {
     pub grammar: ArgParser,
     pub rest: Vec<String>,
     pub args: VecDeque<String>,
+    pub results: HashMap<String, FlagValue>,
 }
 
 impl Parser {
@@ -25,6 +30,7 @@ impl Parser {
             args: args.into_iter().map(|f| f.into()).collect(),
             parent: parent.map(Box::new),
             rest: Vec::new(),
+            results: HashMap::new(),
         }
     }
 
@@ -49,7 +55,7 @@ impl Parser {
         Ok(())
     }
 
-    fn parse_solo_option(&self) -> Result<bool> {
+    fn parse_solo_option(&mut self) -> Result<bool> {
         let current = self.current().unwrap();
 
         if current.len() != 2 || !current.starts_with('-') {
@@ -63,9 +69,27 @@ impl Parser {
         return self.handle_solo_option(opt);
     }
 
-    fn handle_solo_option(&self, opt: char) -> Result<bool> {
+    pub(self) fn handle_solo_option(&mut self, opt: char) -> Result<bool> {
         let flag = self.grammar.find_by_abbr(opt);
-        if flag.is_none() && self.parent.is_some() {}
+        if flag.is_none() {
+            if self.parent.is_none() {
+                bail!("No flag found for `-{}`", opt)
+            }
+            return self.parent.clone().unwrap().handle_solo_option(opt);
+        }
+        self.args.pop_front();
+        let flag = flag.unwrap();
+
+        if flag.is_flag() {
+            self.results.insert(flag.name, FlagValue::Bool(true));
+        } else {
+            if self.args.is_empty() {
+                bail!("Missing argument for flag {}", flag.name)
+            }
+            self.results
+                .insert(flag.name, FlagValue::String(self.current().unwrap().into()));
+            self.args.pop_front();
+        }
         return Ok(true);
     }
 }

@@ -32,3 +32,10 @@ pub enum FlagType {
     /// takes a single value
     Option,
 }
+
+/// Flag values, either bool or string
+#[derive(Debug, Clone)]
+pub(crate) enum FlagValue {
+    Bool(bool),
+    String(String),
+}
