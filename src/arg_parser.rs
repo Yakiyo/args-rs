@@ -4,7 +4,7 @@ use crate::flag::{Flag, FlagType};
 
 /// A class for taking a list of raw command line arguments and parsing out
 /// options and flags from them.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ArgParser {
     flags: HashMap<String, Flag>,
     allows_anything: bool,
