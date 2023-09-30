@@ -51,6 +51,12 @@ impl Parser {
             if self.parse_solo_option()? {
                 continue;
             }
+            if self.parse_abbreviation()? {
+                continue;
+            }
+            if self.parse_long_option()? {
+                continue;
+            }
         }
         Ok(())
     }
@@ -90,6 +96,14 @@ impl Parser {
                 .insert(flag.name, FlagValue::String(self.current().unwrap().into()));
             self.args.pop_front();
         }
-        return Ok(true);
+        Ok(true)
+    }
+
+    fn parse_abbreviation(&self) -> Result<bool> {
+        Ok(true)
+    }
+
+    fn parse_long_option(&self) -> Result<bool> {
+        Ok(true)
     }
 }
