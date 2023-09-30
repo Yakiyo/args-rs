@@ -61,6 +61,7 @@ impl Parser {
         Ok(())
     }
 
+    /// parse single abbreviations, that is `-a abc` or just `-a`
     fn parse_solo_option(&mut self) -> Result<bool> {
         let current = self.current().unwrap();
 
@@ -100,6 +101,13 @@ impl Parser {
     }
 
     fn parse_abbreviation(&self) -> Result<bool> {
+        let current = self.current().unwrap();
+        if current.len() < 2 || !current.starts_with('-') {
+            return Ok(false);
+        }
+        let mut index = 1;
+        let c: Vec<char> = current.chars().collect();
+
         Ok(true)
     }
 
