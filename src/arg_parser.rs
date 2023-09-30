@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ffi::OsString};
 
 use crate::flag::{Flag, FlagType};
 
@@ -86,5 +86,21 @@ impl ArgParser {
             .values()
             .find(|f| f.abbr == Some(abbr))
             .map(|f| f.clone())
+    }
+
+    // TODO: impl this
+    /// Parse args
+    pub fn parse() -> Result<(), ()> {
+        Ok(())
+    }
+
+    // TODO: impl this
+    /// Parse specified args
+    pub fn parse_from<I, T>(_itr: I) -> Result<(), ()>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        Ok(())
     }
 }
