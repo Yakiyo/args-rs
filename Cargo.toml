@@ -1,5 +1,9 @@
 [package]
-name = "args"
+name = "yargs"
+description = "Dummy command line argument parser"
+authors = ["Yakiyo <yakiyo1206@gmail.com>"]
+repository = "https://github.com/Yakiyo/yargs"
+home = 
 version = "0.1.0"
 edition = "2021"
 
