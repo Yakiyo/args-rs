@@ -1,4 +1,4 @@
-use yargs::*;
+use args::*;
 
 fn main() {
     let mut ag = ArgParser::new();
