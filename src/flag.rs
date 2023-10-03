@@ -42,7 +42,7 @@ pub enum FlagType {
 
 /// Flag values, either bool or string
 #[derive(Debug, Clone)]
-pub(crate) enum FlagValue {
+pub enum FlagValue {
     Bool(bool),
     String(String),
 }

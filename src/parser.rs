@@ -1,6 +1,6 @@
 #![allow(unused)]
-use crate::flag::FlagValue;
 use crate::ArgParser;
+use crate::{flag::FlagValue, ArgResult};
 use anyhow::{bail, ensure, Context, Result};
 use std::{
     collections::{HashMap, VecDeque},
@@ -38,7 +38,7 @@ impl Parser {
         self.args.front()
     }
 
-    pub fn parse(&mut self) -> Result<()> {
+    pub fn parse(&mut self) -> Result<ArgResult> {
         while !self.args.is_empty() {
             let current = self.current().unwrap();
             if current == "--" {
@@ -101,7 +101,7 @@ impl Parser {
             let mut args: Vec<String> = self.args.clone().into_iter().collect();
             self.rest.append(&mut args);
         }
-        Ok(())
+        Ok(ArgResult::new(self))
     }
 
     /// parse single abbreviations, that is `-a abc` or just `-a`
