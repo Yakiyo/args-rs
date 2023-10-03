@@ -21,6 +21,11 @@ impl Flag {
     pub fn is_option(&self) -> bool {
         matches!(self.flag_type, FlagType::Option)
     }
+
+    /// if flag is negatable or not
+    pub fn is_negatable(&self) -> bool {
+        self.negatable
+    }
 }
 
 /// The type of the flag

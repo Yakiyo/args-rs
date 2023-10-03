@@ -1,7 +1,7 @@
 #![allow(unused)]
 use crate::flag::FlagValue;
 use crate::ArgParser;
-use anyhow::{bail, Result};
+use anyhow::{bail, ensure, Result};
 use std::{
     collections::{HashMap, VecDeque},
     ops::Deref,
@@ -51,9 +51,9 @@ impl Parser {
             if self.parse_solo_option()? {
                 continue;
             }
-            if self.parse_abbreviation()? {
-                continue;
-            }
+            // if self.parse_abbreviation()? {
+            //     continue;
+            // }
             if self.parse_long_option()? {
                 continue;
             }
@@ -100,18 +100,83 @@ impl Parser {
         Ok(true)
     }
 
-    fn parse_abbreviation(&self) -> Result<bool> {
+    // fn parse_abbreviation(&self) -> Result<bool> {
+    //     let current = self.current().unwrap();
+    //     if current.len() < 2 || !current.starts_with('-') {
+    //         return Ok(false);
+    //     }
+    //     let mut index = 1;
+    //     let c: Vec<char> = current.chars().collect();
+
+    //     Ok(true)
+    // }
+
+    fn parse_long_option(&mut self) -> Result<bool> {
         let current = self.current().unwrap();
-        if current.len() < 2 || !current.starts_with('-') {
+        if !current.starts_with("--") {
             return Ok(false);
         }
-        let mut index = 1;
-        let c: Vec<char> = current.chars().collect();
+        let current = current.strip_prefix("--").unwrap().to_string();
+        let (name, value) = if current.contains('=') {
+            let split: Vec<&str> = current.split('=').collect();
+            if split.len() != 2 {
+                bail!(
+                    "Invalid usage of long option, did not receive value after = sign. Received --{}",
+                    current
+                );
+            }
+            (split[0], Some(split[1]))
+        } else {
+            (current.as_str(), None)
+        };
+        if value.is_some_and(|x| x == "\n" || x == "\r") {
+            return Ok(false);
+        }
 
-        Ok(true)
+        self.handle_long_option(name, value)
     }
 
-    fn parse_long_option(&self) -> Result<bool> {
+    pub(crate) fn handle_long_option(&mut self, name: &str, value: Option<&str>) -> Result<bool> {
+        if let Some(option) = self.grammar.find_by_name(name) {
+            let fname = option.name.clone();
+            self.args.pop_front();
+            if option.is_flag() {
+                if value.is_some() {
+                    bail!(
+                        "Option --{} does not require a value to be passed",
+                        option.name
+                    )
+                }
+                self.results.insert(fname, FlagValue::Bool(true));
+            } else if value.is_some() {
+                self.results
+                    .insert(fname, FlagValue::String(value.unwrap().to_string()));
+            } else {
+                if self.args.is_empty() {
+                    bail!("Missing argument for {}", option.name);
+                }
+                self.results
+                    .insert(fname, FlagValue::String(self.current().unwrap().into()));
+                self.args.pop_front();
+            }
+        } else if name.starts_with("no-") {
+            let pos_name = name.strip_prefix("no-").unwrap();
+            let option = self.grammar.find_by_name(pos_name);
+            if option.is_none() {
+                ensure!(self.parent.is_some(), "No option named {} found", name);
+                return self.parent.clone().unwrap().handle_long_option(name, value);
+            }
+            self.args.pop_front();
+            let option = option.unwrap();
+            ensure!(option.is_flag(), "Cannot negate non-flag option {}", name);
+            ensure!(option.is_negatable(), "Flag {} is non-negatable", name);
+
+            self.results
+                .insert(option.name.clone(), FlagValue::Bool(false));
+        } else {
+            ensure!(self.parent.is_some(), "No option named {} found", name);
+            return return self.parent.clone().unwrap().handle_long_option(name, value);
+        }
         Ok(true)
     }
 }

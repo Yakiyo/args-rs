@@ -88,6 +88,10 @@ impl ArgParser {
             .map(|f| f.clone())
     }
 
+    pub(crate) fn find_by_name(&self, name: &str) -> Option<&Flag> {
+        self.flags.get(name)
+    }
+
     // TODO: impl this
     /// Parse args
     pub fn parse() -> Result<(), ()> {
