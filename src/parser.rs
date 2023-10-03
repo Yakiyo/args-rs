@@ -96,6 +96,11 @@ impl Parser {
                     _ => {}
                 }
             }
+            // set flags to false if they werent provided
+            if parsed.is_none() && opt.is_flag() {
+                self.results
+                    .insert(opt.name.clone(), FlagValue::Bool(false));
+            }
         }
         if !self.args.is_empty() {
             let mut args: Vec<String> = self.args.clone().into_iter().collect();
