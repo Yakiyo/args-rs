@@ -1,5 +1,10 @@
-use crate::flag::{Flag, FlagType};
-use std::{collections::HashMap, ffi::OsString};
+use crate::{
+    flag::{Flag, FlagType},
+    parser::Parser,
+    ArgResult,
+};
+use anyhow::Result;
+use std::collections::HashMap;
 
 /// A class for taking a list of raw command line arguments and parsing out
 /// options and flags from them.
@@ -54,25 +59,18 @@ impl ArgParser {
         help: Option<String>,
         value_help: Option<String>,
         possible_values: Option<Vec<String>>,
-        defaults_to: bool,
+        defaults_to: Option<String>,
         required: bool,
     ) -> &Self {
-        // for flag types, we consider default value `true` when option is some,
-        // and default value `false` when option is none
-        let default = if defaults_to {
-            Some(String::new())
-        } else {
-            None
-        };
         let flag = Flag {
             name: name.clone(),
             abbr,
             help,
-            default,
             value_help,
             possible_values,
             required,
             flag_type: FlagType::Option,
+            default: defaults_to,
             ..Default::default()
         };
         self.flags.insert(name, flag);
@@ -93,17 +91,19 @@ impl ArgParser {
 
     // TODO: impl this
     /// Parse args
-    pub fn parse() -> Result<(), ()> {
-        Ok(())
+    pub fn parse(&self) -> Result<ArgResult> {
+        let mut args = std::env::args();
+        args.next();
+        self.parse_from(args)
     }
 
     // TODO: impl this
     /// Parse specified args
-    pub fn parse_from<I, T>(_itr: I) -> Result<(), ()>
+    pub fn parse_from<I>(&self, itr: I) -> Result<ArgResult>
     where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
+        I: IntoIterator<Item = String>,
     {
-        Ok(())
+        let args = itr.into_iter().collect();
+        Parser::new(None, self.clone(), args, None).parse()
     }
 }
