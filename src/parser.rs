@@ -1,7 +1,7 @@
 #![allow(unused)]
 use crate::flag::FlagValue;
 use crate::ArgParser;
-use anyhow::{bail, ensure, Result};
+use anyhow::{bail, ensure, Context, Result};
 use std::{
     collections::{HashMap, VecDeque},
     ops::Deref,
@@ -48,6 +48,7 @@ impl Parser {
             }
 
             // TODO: handle command here
+
             if self.parse_solo_option()? {
                 continue;
             }
@@ -57,6 +58,33 @@ impl Parser {
             if self.parse_long_option()? {
                 continue;
             }
+
+            self.rest.push(
+                self.args
+                    .pop_front()
+                    .context("Argument should be here but is missing")?,
+            );
+        }
+        let opts = &self.grammar.flags;
+        for (name, opt) in opts {
+            let parsed = self.results.get(name);
+
+            // if no value was passed and theres a default value, then set it
+            if parsed.is_none() && opt.default.is_some() {
+                self.results.insert(
+                    name.to_string(),
+                    FlagValue::String(opt.default.clone().unwrap()),
+                );
+            }
+            let parsed = self.results.get(name);
+
+            if opt.required && parsed.is_none() {
+                bail!("Missing argument for required option {}", name);
+            }
+        }
+        if !self.args.is_empty() {
+            let mut args: Vec<String> = self.args.clone().into_iter().collect();;
+            self.rest.append(&mut args);
         }
         Ok(())
     }

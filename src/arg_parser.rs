@@ -6,7 +6,7 @@ use crate::flag::{Flag, FlagType};
 /// options and flags from them.
 #[derive(Debug, Default, Clone)]
 pub struct ArgParser {
-    flags: HashMap<String, Flag>,
+    pub(crate) flags: HashMap<String, Flag>,
     allows_anything: bool,
 }
 
