@@ -1,6 +1,5 @@
-use std::{collections::HashMap, ffi::OsString};
-
 use crate::flag::{Flag, FlagType};
+use std::{collections::HashMap, ffi::OsString};
 
 /// A class for taking a list of raw command line arguments and parsing out
 /// options and flags from them.

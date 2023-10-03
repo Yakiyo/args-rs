@@ -81,9 +81,24 @@ impl Parser {
             if opt.required && parsed.is_none() {
                 bail!("Missing argument for required option {}", name);
             }
+            if let Some(parsed) = parsed {
+                match parsed {
+                    FlagValue::String(s) if opt.possible_values.is_some() => {
+                        let pv = opt.possible_values.clone().unwrap();
+                        ensure!(
+                            pv.contains(s),
+                            "Invalid value {} received for flag {}. Possible values: {}",
+                            s,
+                            opt.name,
+                            pv.join(", ")
+                        );
+                    }
+                    _ => {}
+                }
+            }
         }
         if !self.args.is_empty() {
-            let mut args: Vec<String> = self.args.clone().into_iter().collect();;
+            let mut args: Vec<String> = self.args.clone().into_iter().collect();
             self.rest.append(&mut args);
         }
         Ok(())

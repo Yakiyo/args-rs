@@ -1,5 +1,6 @@
+#[allow(unused)]
 #[derive(Debug, Default, Clone)]
-pub struct Flag {
+pub(crate) struct Flag {
     pub name: String,
     pub abbr: Option<char>,
     pub help: Option<String>,
@@ -8,7 +9,7 @@ pub struct Flag {
     pub negatable: bool,
     pub flag_type: FlagType,
     pub required: bool,
-    pub(crate) default: Option<String>,
+    pub default: Option<String>,
 }
 
 impl Flag {
@@ -17,6 +18,7 @@ impl Flag {
         matches!(self.flag_type, FlagType::Flag)
     }
 
+    #[allow(unused)]
     /// if it is of type option
     pub fn is_option(&self) -> bool {
         matches!(self.flag_type, FlagType::Option)
